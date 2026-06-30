@@ -139,12 +139,17 @@ let habilitacionDeBotonAtender = (desabilitar) => {
 
 let validacionNumero = (numero) => {
     console.log(numero)
-    if (numero.length >= 8 && numero.length<=15) {
-        btnRegistrar.disabled = false
-    }else{
-        btnRegistrar.disabled = true
+    if (numero.length >= 8 && numero.length <= 15) {
+        btnRegistrar.removeEventListener('click', validarLlamada)
+        formNuevaLlamada.addEventListener('submit', registrarLlamada)
+        btnRegistrar.setAttribute('data-bs-dismiss', 'modal')
+    } else {
+        btnRegistrar.removeAttribute('data-bs-dismiss', 'modal')
+        formNuevaLlamada.removeEventListener('submit', registrarLlamada)
+        btnRegistrar.addEventListener('click', validarLlamada)
     }
 }
+
 
 
 
@@ -152,21 +157,25 @@ let validacionNumero = (numero) => {
 const sonidoLlamada = new Audio('audio/llamada.mp3');
 
 btnRegistrar.addEventListener('click', () => {
-  sonidoLlamada.play();
+    sonidoLlamada.play();
 });
 
-inputTelefono.addEventListener('keyup',(event)=>{
+inputTelefono.addEventListener('keyup', (event) => {
     validacionNumero(inputTelefono.value)
 })
 
-formNuevaLlamada.addEventListener('submit', (event) => {
+const validarLlamada = (event) => {
+    event.preventDefault()
+    alert('Necesitas ingresar 8 numeros como minimo')
+}
+const registrarLlamada = (event) => {
     event.preventDefault()
     llamadas.enqueue(event.target["cliente"].value, event.target['telefono'].value, event.target['motivo'].value)
     colaEspera.innerHTML = llamadas.renderizar()
     proximaLlamada.innerHTML = llamadas.proximaLlamada()
     habilitacionDeBotonAtender(false)
     formNuevaLlamada.reset()
-})
+}
 btnAtender.addEventListener('click', (event) => {
     llamadaActual.innerHTML = llamadas.proximaLlamada()
     if (llamadas.length <= 1) {
